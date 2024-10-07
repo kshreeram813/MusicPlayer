@@ -151,7 +151,7 @@ class MainActivity : ComponentActivity() {
                 IconButton(onClick = { showBottomSheet = false }) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_back),
-                        contentDescription = "Close",
+                        contentDescription = "Close and go back",
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -228,9 +228,9 @@ class MainActivity : ComponentActivity() {
 
                 // Motivational message
                 Text(
-                    text = "🎵 Thank you for listening! Enjoy the music and let it brighten your day. 🎶 Keep having fun with your favorite songs!",
+                    text = "🎵 Enjoy the music and let it brighten your day. 🎶 Keep having fun with your favorite songs!",
                     style = MaterialTheme.typography.bodySmall.copy(
-                        color = Color(0xFF6A6A6A),
+                        color = Color(0xFF0097A7),
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold
                     ),

@@ -71,6 +71,8 @@ dependencies {
     implementation("androidx.compose.material:material:1.7.3") // For additional Material components
     implementation("androidx.compose.material3:material3-window-size-class:1.3.0")
 
+    implementation ("androidx.core:core-ktx:1.13.1")
+    implementation ("androidx.media:media:1.7.0")
 
 
 
