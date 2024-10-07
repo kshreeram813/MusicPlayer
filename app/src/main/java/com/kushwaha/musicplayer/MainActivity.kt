@@ -150,7 +150,7 @@ class MainActivity : ComponentActivity() {
             ) {
                 IconButton(onClick = { showBottomSheet = false }) {
                     Icon(
-                        painter = painterResource(id = R.drawable.close),
+                        painter = painterResource(id = R.drawable.ic_back),
                         contentDescription = "Close",
                         modifier = Modifier.size(20.dp)
                     )
