@@ -96,7 +96,7 @@ fun NowPlayingSheet() {
                 Slider(
                     value = MediaPlayerState.songProgress,
                     onValueChange = { newValue ->
-                        val newPosition = (newValue * songDurationState.songDuration).toInt()
+                        val newPosition = (newValue * SongDurationState.songDuration).toInt()
                         MediaPlayerState.mediaPlayer?.seekTo(newPosition)
                         MediaPlayerState.songProgress = newValue
                     },
@@ -110,8 +110,8 @@ fun NowPlayingSheet() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = songDurationState.currentTime, style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF6A6A6A)))
-                    Text(text = songDurationState.endTime, style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF6A6A6A)))
+                    Text(text = SongDurationState.currentTime, style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF6A6A6A)))
+                    Text(text = SongDurationState.endTime, style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF6A6A6A)))
                 }
             }
 

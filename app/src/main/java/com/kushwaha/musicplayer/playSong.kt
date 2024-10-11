@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 private var elapsedTime by mutableStateOf(0)
 private var currentSongIndex = 0
 
-object songDurationState {
+object SongDurationState {
     var songDuration by mutableStateOf(0) // This will hold the duration in milliseconds
     var currentTime by mutableStateOf("00:00")
     var endTime by mutableStateOf("00:00") // This will represent the remaining time
@@ -34,7 +34,7 @@ object MediaPlayerState {
             setDataSource(songPath)
             prepare()
             start()
-            songDurationState.songDuration = duration
+            SongDurationState.songDuration = duration
             elapsedTime = 0
             currentSongIndex = MusicPlayerState.musicList.indexOfFirst { it.second == songPath }
             MediaPlayerState.currentSong = MusicPlayerState.musicList[currentSongIndex].first
@@ -50,13 +50,13 @@ object MediaPlayerState {
             while (isActive) {
                 if (MediaPlayerState.mediaPlayer?.isPlaying == true) {
                     elapsedTime = MediaPlayerState.mediaPlayer?.currentPosition ?: 0
-                    MediaPlayerState.songProgress = elapsedTime.toFloat() / songDurationState.songDuration
+                    MediaPlayerState.songProgress = elapsedTime.toFloat() / SongDurationState.songDuration
 
                     // Update current time
-                    songDurationState.currentTime = formatTime(elapsedTime)
+                    SongDurationState.currentTime = formatTime(elapsedTime)
 
                     // Update end time as remaining time
-                    songDurationState.endTime = formatTime(songDurationState.songDuration - elapsedTime)
+                    SongDurationState.endTime = formatTime(SongDurationState.songDuration - elapsedTime)
                 }
                 delay(1000) // Update every second
             }
