@@ -17,7 +17,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -216,12 +215,12 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    NeumorphicButton(iconRes = R.drawable.ic_prev, onClick = { previousSong() })
-                    NeumorphicButton(
+                    MonomorphicButton(iconRes = R.drawable.ic_prev, onClick = { previousSong() })
+                    MonomorphicButton(
                         iconRes = if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play,
                         onClick = { if (isPlaying) pauseSong() else playSong(currentSong!!, false) }
                     )
-                    NeumorphicButton(iconRes = R.drawable.ic_next, onClick = { nextSong() })
+                    MonomorphicButton(iconRes = R.drawable.ic_next, onClick = { nextSong() })
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -483,27 +482,5 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
         mediaPlayer?.release()
         job?.cancel() // Cancel the progress update coroutine
-    }
-}
-
-@Composable
-fun NeumorphicButton(iconRes: Int, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .size(56.dp)
-            .clickable(
-                onClick = onClick,
-                indication = null, // Remove the ripple effect
-                interactionSource = remember { MutableInteractionSource() } // Required to suppress ripple effect
-            )
-            .border(1.dp, Color.Gray, shape = RoundedCornerShape(28.dp)) // Add border
-            .padding(4.dp), // Add some padding to create a subtle effect
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            painter = painterResource(id = iconRes),
-            contentDescription = null,
-            modifier = Modifier.size(24.dp)
-        )
     }
 }
