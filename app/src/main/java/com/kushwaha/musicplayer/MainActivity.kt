@@ -8,16 +8,19 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.kushwaha.musicplayer.ui.theme.MusicPlayerTheme
+import java.io.File
 
 class MainActivity : ComponentActivity() {
     private var searchQuery by mutableStateOf("")
@@ -137,8 +140,54 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun renameSong(oldName: String, newName: String) {
-        // Implement your logic to rename the song file here if necessary
+        try {
+            val songPath = MusicPlayerState.musicList.find { it.first == oldName }?.second
+            Log.d("RenameSong", "Old file path: $songPath")
+
+            if (songPath != null) {
+                val oldFile = File(songPath)
+
+                // Check if the old file exists
+                if (!oldFile.exists()) {
+                    Log.e("RenameSong", "Old file does not exist: $oldName")
+                    return
+                }
+
+                // Create the new file object
+                val newFile = File(oldFile.parent, newName)
+
+                // Check if the new file already exists
+                if (newFile.exists()) {
+                    Log.e("RenameSong", "File with the new name already exists")
+                    return
+                }
+
+                // Perform the renaming
+                if (oldFile.renameTo(newFile)) {
+                    Log.d("RenameSong", "Renamed successfully: $oldName to $newName")
+
+                    // Update the music list state immediately
+                    val index = MusicPlayerState.musicList.indexOfFirst { it.first == oldName }
+                    if (index != -1) {
+                        MusicPlayerState.musicList[index] = Pair(newName, newFile.path)
+                    }
+
+                    // Save the updated favorites
+                    saveFavorites()
+                } else {
+                    Log.e("RenameSong", "Failed to rename file")
+                }
+            } else {
+                Log.e("RenameSong", "Song not found: $oldName")
+            }
+        } catch (e: Exception) {
+            Log.e("RenameSong", "Exception during renaming: ${e.message}")
+            e.printStackTrace()
+        }
     }
+
+
+
 
     private fun checkAndRequestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
