@@ -20,6 +20,9 @@ import com.kushwaha.musicplayer.ui.theme.MusicPlayerTheme
 
 class MainActivity : ComponentActivity() {
     private var searchQuery by mutableStateOf("")
+    private var showRenameDialog by mutableStateOf(false)
+    private var songToRename by mutableStateOf("") // Song name to rename
+    private var newSongName by mutableStateOf("") // New song name
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,20 +33,56 @@ class MainActivity : ComponentActivity() {
                     color = Color(0xFF6F7575)
                 ) {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        SongListUI(MusicPlayerState.musicList, searchQuery, onSearchQueryChanged = { searchQuery = it }) { songPath ->
-                            MediaPlayerState.currentSong = MusicPlayerState.musicList.find { it.second == songPath }?.first
-                            playSong(songPath, isNewSong = true)
-                            ShowBottomSheetState.showBottomSheet = true // Show the bottom sheet when a song is selected
-                        }
+                        SongListUI(
+                            MusicPlayerState.musicList,
+                            searchQuery,
+                            onSearchQueryChanged = { searchQuery = it },
+                            onPlayPauseClick = { songPath ->
+                                MediaPlayerState.currentSong = MusicPlayerState.musicList.find { it.second == songPath }?.first
+                                playSong(songPath, isNewSong = true)
+                                ShowBottomSheetState.showBottomSheet = true // Show the bottom sheet when a song is selected
+                            },
+                            onRenameSong = { songName, songPath ->
+                                songToRename = songName
+                                newSongName = songName // Set new song name to current name for editing
+                                showRenameDialog = true // Show rename dialog
+                            },
+                            onToggleFavorite = { songName ->
+                                if (MusicPlayerState.favoriteSongs.contains(songName)) {
+                                    MusicPlayerState.favoriteSongs.remove(songName) // Remove from favorites
+                                } else {
+                                    MusicPlayerState.favoriteSongs.add(songName) // Add to favorites
+                                }
+                            }
+                        )
                         // Bottom Sheet for Now Playing
                         if (ShowBottomSheetState.showBottomSheet) {
                             NowPlayingSheet()
+                        }
+
+                        // Rename Dialog
+                        if (showRenameDialog) {
+                            RenameDialog(
+                                songToRename,
+                                newSongName,
+                                onRename = { newName ->
+                                    // Implement your renaming logic here
+                                    renameSong(songToRename, newName) // Rename the song
+                                    songToRename = newName // Update the song name
+                                    showRenameDialog = false // Close dialog
+                                },
+                                onDismiss = { showRenameDialog = false }
+                            )
                         }
                     }
                 }
             }
         }
         checkAndRequestPermissions()
+    }
+
+    private fun renameSong(oldName: String, newName: String) {
+        // Implement your logic to rename the song file here if necessary
     }
 
     private fun checkAndRequestPermissions() {

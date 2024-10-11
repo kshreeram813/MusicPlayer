@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateListOf
 
 object MusicPlayerState {
     var musicList = mutableStateListOf<Pair<String, String>>()
+    var favoriteSongs = mutableListOf<String>() // List of favorite songs
 }
 
 fun fetchMusicFiles(context: Context) {
