@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.kushwaha.musicplayer.MusicPlayerState.favoriteSongs
 
@@ -203,7 +204,9 @@ fun SongItem(
             Icon(painter = painterResource(id = R.drawable.ic_threedot), contentDescription = "Options")
         }
 
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false },
+            offset = DpOffset(x = (200).dp, y = 0.dp) // Adjust the offset to match the desired position
+        ) {
             DropdownMenuItem(
                 text = {
                     Text(if (favoriteSongs.contains(song.first)) "Remove from Favorites" else "Add to Favorites")
