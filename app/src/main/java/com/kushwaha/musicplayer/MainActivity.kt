@@ -23,6 +23,7 @@ class MainActivity : ComponentActivity() {
     private var showRenameDialog by mutableStateOf(false)
     private var songToRename by mutableStateOf("") // Song name to rename
     private var newSongName by mutableStateOf("") // New song name
+    private var selectedTabIndex by mutableStateOf(0) // 0 for All Songs, 1 for Favorites
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,31 +34,48 @@ class MainActivity : ComponentActivity() {
                     color = Color(0xFF6F7575)
                 ) {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        SongListUI(
-                            MusicPlayerState.musicList,
-                            searchQuery,
-                            onSearchQueryChanged = { searchQuery = it },
-                            onPlayPauseClick = { songPath ->
-                                MediaPlayerState.currentSong = MusicPlayerState.musicList.find { it.second == songPath }?.first
-                                playSong(songPath, isNewSong = true)
-                                ShowBottomSheetState.showBottomSheet = true // Show the bottom sheet when a song is selected
-                            },
-                            onRenameSong = { songName, songPath ->
-                                songToRename = songName
-                                newSongName = songName // Set new song name to current name for editing
-                                showRenameDialog = true // Show rename dialog
-                            },
-                            onToggleFavorite = { songName ->
-                                if (MusicPlayerState.favoriteSongs.contains(songName)) {
-                                    MusicPlayerState.favoriteSongs.remove(songName) // Remove from favorites
-                                } else {
-                                    MusicPlayerState.favoriteSongs.add(songName) // Add to favorites
-                                }
-                            }
-                        )
-                        // Bottom Sheet for Now Playing
-                        if (ShowBottomSheetState.showBottomSheet) {
-                            NowPlayingSheet()
+                        TabRow(selectedTabIndex = selectedTabIndex) {
+                            Tab(
+                                selected = selectedTabIndex == 0,
+                                onClick = { selectedTabIndex = 0 },
+                                text = { Text("All Songs") }
+                            )
+                            Tab(
+                                selected = selectedTabIndex == 1,
+                                onClick = { selectedTabIndex = 1 },
+                                text = { Text("Favorites") }
+                            )
+                        }
+
+                        // Song List UI based on selected tab
+                        if (selectedTabIndex == 0) {
+                            SongListUI(
+                                MusicPlayerState.musicList,
+                                searchQuery,
+                                onSearchQueryChanged = { searchQuery = it },
+                                onPlayPauseClick = { songPath -> playSong(songPath, isNewSong = true) },
+                                onRenameSong = { songName, songPath ->
+                                    songToRename = songName
+                                    newSongName = songName
+                                    showRenameDialog = true
+                                },
+                                onToggleFavorite = { songName -> toggleFavorite(songName) }
+                            )
+                        } else {
+                            SongListUI(
+                                MusicPlayerState.favoriteSongs.map { songName ->
+                                    MusicPlayerState.musicList.find { it.first == songName } ?: Pair(songName, "")
+                                },
+                                searchQuery,
+                                onSearchQueryChanged = { searchQuery = it },
+                                onPlayPauseClick = { songPath -> playSong(songPath, isNewSong = true) },
+                                onRenameSong = { songName, songPath ->
+                                    songToRename = songName
+                                    newSongName = songName
+                                    showRenameDialog = true
+                                },
+                                onToggleFavorite = { songName -> toggleFavorite(songName) }
+                            )
                         }
 
                         // Rename Dialog
@@ -66,10 +84,9 @@ class MainActivity : ComponentActivity() {
                                 songToRename,
                                 newSongName,
                                 onRename = { newName ->
-                                    // Implement your renaming logic here
-                                    renameSong(songToRename, newName) // Rename the song
-                                    songToRename = newName // Update the song name
-                                    showRenameDialog = false // Close dialog
+                                    renameSong(songToRename, newName)
+                                    songToRename = newName
+                                    showRenameDialog = false
                                 },
                                 onDismiss = { showRenameDialog = false }
                             )
@@ -79,6 +96,14 @@ class MainActivity : ComponentActivity() {
             }
         }
         checkAndRequestPermissions()
+    }
+
+    private fun toggleFavorite(songName: String) {
+        if (MusicPlayerState.favoriteSongs.contains(songName)) {
+            MusicPlayerState.favoriteSongs.remove(songName) // Remove from favorites
+        } else {
+            MusicPlayerState.favoriteSongs.add(songName) // Add to favorites
+        }
     }
 
     private fun renameSong(oldName: String, newName: String) {
