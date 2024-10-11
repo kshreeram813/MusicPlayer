@@ -19,7 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import com.kushwaha.musicplayer.MusicPlayerState.favoriteSongs
 
 @Composable
 fun SongListUI(
@@ -80,7 +79,7 @@ fun SongListUI(
                     SongItem(
                         song = song,
                         isPlaying = song.first == MediaPlayerState.currentSong,
-                        isFavorite = favoriteSongs.contains(song.first), // Pass favorite status
+                        isFavorite = MusicPlayerState.favoriteSongs.contains(song.first), // Pass favorite status
                         onPlayPauseClick = onPlayPauseClick,
                         onToggleFavorite = onToggleFavorite,
                         onRenameSong = onRenameSong

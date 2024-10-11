@@ -116,13 +116,12 @@ class MainActivity : ComponentActivity() {
         checkAndRequestPermissions()
     }
 
-    private fun toggleFavorite(songName: String) {
-        if (MusicPlayerState.favoriteSongs.contains(songName)) {
-            MusicPlayerState.favoriteSongs.remove(songName) // Remove from favorites
+    fun toggleFavorite(songTitle: String) {
+        if (MusicPlayerState.favoriteSongs.contains(songTitle)) {
+            MusicPlayerState.favoriteSongs.remove(songTitle) // Remove from favorites
         } else {
-            MusicPlayerState.favoriteSongs.add(songName) // Add to favorites
+            MusicPlayerState.favoriteSongs.add(songTitle) // Add to favorites
         }
-        saveFavorites() // Save the updated favorites to SharedPreferences
     }
 
     private fun saveFavorites() {
