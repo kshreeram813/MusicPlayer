@@ -3,7 +3,6 @@ package com.kushwaha.musicplayer
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -34,21 +33,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.kushwaha.musicplayer.ui.theme.MusicPlayerTheme
-import kotlinx.coroutines.*
 
 class MainActivity : ComponentActivity() {
-    private var songDuration by mutableStateOf(0)
-    private var elapsedTime by mutableStateOf(0)
-    private var mediaPlayer: MediaPlayer? = null
     private var searchQuery by mutableStateOf("")
-    private var isPlaying by mutableStateOf(false)
-    private var currentSong by mutableStateOf<String?>(null)
-    private var currentSongIndex = 0
     private var showBottomSheet by mutableStateOf(false)
-    private var songProgress by mutableStateOf(0f)
-    private var job: Job? = null // Job for managing coroutine
-    private var currentTime by mutableStateOf("00:00")
-    private var endTime by mutableStateOf("00:00") // This will represent the remaining time
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +48,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Column(modifier = Modifier.fillMaxSize()) {
                         SongListUI(MusicPlayerState.musicList, searchQuery, onSearchQueryChanged = { searchQuery = it }) { songPath ->
-                            currentSong = MusicPlayerState.musicList.find { it.second == songPath }?.first
+                            MediaPlayerState.currentSong = MusicPlayerState.musicList.find { it.second == songPath }?.first
                             playSong(songPath, isNewSong = true)
                             showBottomSheet = true // Show the bottom sheet when a song is selected
                         }
@@ -143,7 +131,7 @@ class MainActivity : ComponentActivity() {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = currentSong ?: "Select a Song",
+                    text = MediaPlayerState.currentSong ?: "Select a Song",
                     style = MaterialTheme.typography.titleMedium.copy(
                         color = Color(0xFF6A6A6A),
                         fontWeight = FontWeight.Bold
@@ -164,11 +152,11 @@ class MainActivity : ComponentActivity() {
                 // Slider for song progress
                 Column {
                     Slider(
-                        value = songProgress,
+                        value = MediaPlayerState.songProgress,
                         onValueChange = { newValue ->
-                            val newPosition = (newValue * songDuration).toInt()
-                            mediaPlayer?.seekTo(newPosition)
-                            songProgress = newValue
+                            val newPosition = (newValue * songDurationState.songDuration).toInt()
+                            MediaPlayerState.mediaPlayer?.seekTo(newPosition)
+                            MediaPlayerState.songProgress = newValue
                         },
                         modifier = Modifier.fillMaxWidth(),
                         valueRange = 0f..1f,
@@ -180,8 +168,8 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = currentTime, style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF6A6A6A)))
-                        Text(text = endTime, style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF6A6A6A)))
+                        Text(text = songDurationState.currentTime, style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF6A6A6A)))
+                        Text(text = songDurationState.endTime, style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF6A6A6A)))
                     }
                 }
 
@@ -194,8 +182,8 @@ class MainActivity : ComponentActivity() {
                 ) {
                     MonomorphicButton(iconRes = R.drawable.ic_prev, onClick = { previousSong() })
                     MonomorphicButton(
-                        iconRes = if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play,
-                        onClick = { if (isPlaying) pauseSong() else playSong(currentSong!!, false) }
+                        iconRes = if (MediaPlayerState.isPlaying) R.drawable.ic_pause else R.drawable.ic_play,
+                        onClick = { if (MediaPlayerState.isPlaying) pauseSong() else playSong(MediaPlayerState.currentSong!!, false) }
                     )
                     MonomorphicButton(iconRes = R.drawable.ic_next, onClick = { nextSong() })
                 }
@@ -216,14 +204,6 @@ class MainActivity : ComponentActivity() {
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
-    }
-
-
-
-    private fun formatTime(milliseconds: Int): String {
-        val seconds = (milliseconds / 1000) % 60
-        val minutes = (milliseconds / (1000 * 60)) % 60
-        return String.format("%02d:%02d", minutes, seconds)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -329,7 +309,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     items(filteredMusicList) { song ->
                         // Determine if this song is currently playing
-                        val isPlaying = song.first == currentSong
+                        val isPlaying = song.first == MediaPlayerState.currentSong
 
                         // Song Item
                         Row(
@@ -395,69 +375,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
-    private fun playSong(songPath: String, isNewSong: Boolean) {
-        if (isNewSong) {
-            mediaPlayer?.release()
-            mediaPlayer = MediaPlayer().apply {
-                setDataSource(songPath)
-                prepare()
-                start()
-                songDuration = duration
-                elapsedTime = 0
-                currentSongIndex = MusicPlayerState.musicList.indexOfFirst { it.second == songPath }
-                currentSong = MusicPlayerState.musicList[currentSongIndex].first
-
-                // Automatically play the next song when the current song finishes
-                setOnCompletionListener {
-                    nextSong()
-                }
-            }
-
-            // Launch a coroutine to update progress
-            job = CoroutineScope(Dispatchers.Main).launch {
-                while (isActive) {
-                    if (mediaPlayer?.isPlaying == true) {
-                        elapsedTime = mediaPlayer?.currentPosition ?: 0
-                        songProgress = elapsedTime.toFloat() / songDuration
-
-                        // Update current time
-                        currentTime = formatTime(elapsedTime)
-
-                        // Update end time as remaining time
-                        endTime = formatTime(songDuration - elapsedTime)
-                    }
-                    delay(1000) // Update every second
-                }
-            }
-            isPlaying = true
-        } else {
-            mediaPlayer?.start()
-            isPlaying = true
-        }
-    }
-
-    private fun pauseSong() {
-        mediaPlayer?.pause()
-        job?.cancel() // Cancel the progress update coroutine
-        isPlaying = false
-    }
-
-    private fun nextSong() {
-        currentSongIndex = (currentSongIndex + 1) % MusicPlayerState.musicList.size
-        val nextSongPath = MusicPlayerState.musicList[currentSongIndex].second
-        playSong(nextSongPath, isNewSong = true)
-    }
-
-    private fun previousSong() {
-        currentSongIndex = if (currentSongIndex - 1 < 0) MusicPlayerState.musicList.size - 1 else currentSongIndex - 1
-        val prevSongPath = MusicPlayerState.musicList[currentSongIndex].second
-        playSong(prevSongPath, isNewSong = true)
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer?.release()
-        job?.cancel() // Cancel the progress update coroutine
+        MediaPlayerState.mediaPlayer?.release()
+        MediaPlayerState.job?.cancel() // Cancel the progress update coroutine
     }
 }
