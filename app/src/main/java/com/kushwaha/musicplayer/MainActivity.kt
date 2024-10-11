@@ -2,6 +2,7 @@ package com.kushwaha.musicplayer
 
 import android.Manifest
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -25,8 +26,14 @@ class MainActivity : ComponentActivity() {
     private var newSongName by mutableStateOf("") // New song name
     private var selectedTabIndex by mutableStateOf(0) // 0 for All Songs, 1 for Favorites
 
+    private lateinit var sharedPreferences: SharedPreferences
+    private val favoritesKey = "favorites"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        sharedPreferences = getSharedPreferences("MusicPlayerPrefs", MODE_PRIVATE)
+        loadFavorites()
+
         setContent {
             MusicPlayerTheme {
                 Surface(
@@ -34,16 +41,16 @@ class MainActivity : ComponentActivity() {
                     color = Color(0xFF6F7575)
                 ) {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        TabRow(selectedTabIndex = selectedTabIndex) {
+                        TabRow(selectedTabIndex = selectedTabIndex, containerColor = Color(0xFF3D3D3D)) {
                             Tab(
                                 selected = selectedTabIndex == 0,
                                 onClick = { selectedTabIndex = 0 },
-                                text = { Text("All Songs") }
+                                text = { Text("All Songs", color = Color.White) }
                             )
                             Tab(
                                 selected = selectedTabIndex == 1,
                                 onClick = { selectedTabIndex = 1 },
-                                text = { Text("Favorites") }
+                                text = { Text("Favorites", color = Color.White) }
                             )
                         }
 
@@ -115,6 +122,19 @@ class MainActivity : ComponentActivity() {
         } else {
             MusicPlayerState.favoriteSongs.add(songName) // Add to favorites
         }
+        saveFavorites() // Save the updated favorites to SharedPreferences
+    }
+
+    private fun saveFavorites() {
+        val editor = sharedPreferences.edit()
+        editor.putStringSet(favoritesKey, MusicPlayerState.favoriteSongs.toSet())
+        editor.apply()
+    }
+
+    private fun loadFavorites() {
+        val favoritesSet = sharedPreferences.getStringSet(favoritesKey, setOf())
+        MusicPlayerState.favoriteSongs.clear()
+        MusicPlayerState.favoriteSongs.addAll(favoritesSet ?: setOf())
     }
 
     private fun renameSong(oldName: String, newName: String) {

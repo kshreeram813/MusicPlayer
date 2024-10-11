@@ -80,6 +80,7 @@ fun SongListUI(
                     SongItem(
                         song = song,
                         isPlaying = song.first == MediaPlayerState.currentSong,
+                        isFavorite = favoriteSongs.contains(song.first), // Pass favorite status
                         onPlayPauseClick = onPlayPauseClick,
                         onToggleFavorite = onToggleFavorite,
                         onRenameSong = onRenameSong
@@ -164,6 +165,7 @@ fun SearchBox(
 fun SongItem(
     song: Pair<String, String>,
     isPlaying: Boolean,
+    isFavorite: Boolean, // Accept the favorite state
     onPlayPauseClick: (String) -> Unit,
     onToggleFavorite: (String) -> Unit,
     onRenameSong: (String, String) -> Unit
@@ -200,6 +202,15 @@ fun SongItem(
             modifier = Modifier.weight(1f)
         )
 
+        // Favorite button
+        IconButton(onClick = { onToggleFavorite(song.first) }) {
+            Image(
+                painter = painterResource(id = if (isFavorite) R.drawable.ic_favorite else R.drawable.ic_favorite_border),
+                contentDescription = "Toggle Favorite",
+                modifier = Modifier.size(24.dp)
+            )
+        }
+
         IconButton(onClick = { expanded = true }) {
             Icon(painter = painterResource(id = R.drawable.ic_threedot), contentDescription = "Options")
         }
@@ -209,7 +220,7 @@ fun SongItem(
         ) {
             DropdownMenuItem(
                 text = {
-                    Text(if (favoriteSongs.contains(song.first)) "Remove from Favorites" else "Add to Favorites")
+                    Text(if (isFavorite) "Remove from Favorites" else "Add to Favorites")
                 },
                 onClick = {
                     onToggleFavorite(song.first)
