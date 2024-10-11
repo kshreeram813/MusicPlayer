@@ -53,7 +53,10 @@ class MainActivity : ComponentActivity() {
                                 MusicPlayerState.musicList,
                                 searchQuery,
                                 onSearchQueryChanged = { searchQuery = it },
-                                onPlayPauseClick = { songPath -> playSong(songPath, isNewSong = true) },
+                                onPlayPauseClick = { songPath ->
+                                    playSong(songPath, isNewSong = true)
+                                    ShowBottomSheetState.showBottomSheet = true // Show the bottom sheet when a song is played
+                                },
                                 onRenameSong = { songName, songPath ->
                                     songToRename = songName
                                     newSongName = songName
@@ -68,7 +71,10 @@ class MainActivity : ComponentActivity() {
                                 },
                                 searchQuery,
                                 onSearchQueryChanged = { searchQuery = it },
-                                onPlayPauseClick = { songPath -> playSong(songPath, isNewSong = true) },
+                                onPlayPauseClick = { songPath ->
+                                    playSong(songPath, isNewSong = true)
+                                    ShowBottomSheetState.showBottomSheet = true // Show the bottom sheet when a song is played
+                                },
                                 onRenameSong = { songName, songPath ->
                                     songToRename = songName
                                     newSongName = songName
@@ -76,6 +82,11 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onToggleFavorite = { songName -> toggleFavorite(songName) }
                             )
+                        }
+
+                        // Bottom Sheet for Now Playing
+                        if (ShowBottomSheetState.showBottomSheet) {
+                            NowPlayingSheet() // Display Now Playing sheet
                         }
 
                         // Rename Dialog
