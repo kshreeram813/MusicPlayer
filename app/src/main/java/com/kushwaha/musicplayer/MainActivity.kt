@@ -1,14 +1,12 @@
 package com.kushwaha.musicplayer
 
 import android.Manifest
-import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -42,7 +40,6 @@ class MainActivity : ComponentActivity() {
     private var songDuration by mutableStateOf(0)
     private var elapsedTime by mutableStateOf(0)
     private var mediaPlayer: MediaPlayer? = null
-    private var musicList = mutableStateListOf<Pair<String, String>>()
     private var searchQuery by mutableStateOf("")
     private var isPlaying by mutableStateOf(false)
     private var currentSong by mutableStateOf<String?>(null)
@@ -53,7 +50,6 @@ class MainActivity : ComponentActivity() {
     private var currentTime by mutableStateOf("00:00")
     private var endTime by mutableStateOf("00:00") // This will represent the remaining time
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -63,8 +59,8 @@ class MainActivity : ComponentActivity() {
                     color = Color(0xFF6F7575)
                 ) {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        SongListUI(musicList, searchQuery, onSearchQueryChanged = { searchQuery = it }) { songPath ->
-                            currentSong = musicList.find { it.second == songPath }?.first
+                        SongListUI(MusicPlayerState.musicList, searchQuery, onSearchQueryChanged = { searchQuery = it }) { songPath ->
+                            currentSong = MusicPlayerState.musicList.find { it.second == songPath }?.first
                             playSong(songPath, isNewSong = true)
                             showBottomSheet = true // Show the bottom sheet when a song is selected
                         }
@@ -86,13 +82,13 @@ class MainActivity : ComponentActivity() {
                 intent.data = Uri.parse("package:" + this.packageName)
                 startActivityForResult(intent, 101)
             } else {
-                fetchMusicFiles()
+                fetchMusicFiles(this)
             }
         } else {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1)
             } else {
-                fetchMusicFiles()
+                fetchMusicFiles(this)
             }
         }
     }
@@ -101,7 +97,7 @@ class MainActivity : ComponentActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 101) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && android.os.Environment.isExternalStorageManager()) {
-                fetchMusicFiles()
+                fetchMusicFiles(this)
             }
         }
     }
@@ -109,28 +105,9 @@ class MainActivity : ComponentActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            fetchMusicFiles()
+            fetchMusicFiles(this)
         }
     }
-
-    private fun fetchMusicFiles() {
-        musicList.clear()
-        val contentResolver: ContentResolver = contentResolver
-        val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-        val projection = arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA)
-        val cursor = contentResolver.query(uri, projection, null, null, null)
-
-        cursor?.use {
-            val nameColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
-            val dataColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-            while (it.moveToNext()) {
-                val songName = it.getString(nameColumn)
-                val songPath = it.getString(dataColumn)
-                musicList.add(Pair(songName, songPath))
-            }
-        }
-    }
-
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -428,8 +405,8 @@ class MainActivity : ComponentActivity() {
                 start()
                 songDuration = duration
                 elapsedTime = 0
-                currentSongIndex = musicList.indexOfFirst { it.second == songPath }
-                currentSong = musicList[currentSongIndex].first
+                currentSongIndex = MusicPlayerState.musicList.indexOfFirst { it.second == songPath }
+                currentSong = MusicPlayerState.musicList[currentSongIndex].first
 
                 // Automatically play the next song when the current song finishes
                 setOnCompletionListener {
@@ -467,14 +444,14 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun nextSong() {
-        currentSongIndex = (currentSongIndex + 1) % musicList.size
-        val nextSongPath = musicList[currentSongIndex].second
+        currentSongIndex = (currentSongIndex + 1) % MusicPlayerState.musicList.size
+        val nextSongPath = MusicPlayerState.musicList[currentSongIndex].second
         playSong(nextSongPath, isNewSong = true)
     }
 
     private fun previousSong() {
-        currentSongIndex = if (currentSongIndex - 1 < 0) musicList.size - 1 else currentSongIndex - 1
-        val prevSongPath = musicList[currentSongIndex].second
+        currentSongIndex = if (currentSongIndex - 1 < 0) MusicPlayerState.musicList.size - 1 else currentSongIndex - 1
+        val prevSongPath = MusicPlayerState.musicList[currentSongIndex].second
         playSong(prevSongPath, isNewSong = true)
     }
 
