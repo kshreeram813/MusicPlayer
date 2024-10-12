@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -58,17 +57,6 @@ fun SongListUI(
                     onClose = { showSearchBox = false }
                 )
             }
-
-            // Header
-            Text(
-                text = if (showSearchBox) "Search Results" else "My List",
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    color = Color(0xFF6A6A6A),
-                    fontWeight = FontWeight.Bold
-                )
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             // Song List
             LazyColumn(

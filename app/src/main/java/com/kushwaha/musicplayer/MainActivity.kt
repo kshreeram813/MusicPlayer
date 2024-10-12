@@ -61,7 +61,7 @@ class MainActivity : ComponentActivity() {
                             Tab(
                                 selected = selectedTabIndex == 0,
                                 onClick = { selectedTabIndex = 0 },
-                                text = { Text("All Songs", color = Color.Black) }
+                                text = { Text("Songs", color = Color.Black) }
                             )
                             Tab(
                                 selected = selectedTabIndex == 1,
