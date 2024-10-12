@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.kushwaha.musicplayer.ui.theme.MusicPlayerTheme
@@ -40,57 +41,91 @@ class MainActivity : ComponentActivity() {
             MusicPlayerTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = Color(0xFF6F7575)
+                    color = Color(0xFFFFFFFF)
                 ) {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        TabRow(selectedTabIndex = selectedTabIndex, containerColor = Color(0xFF3D3D3D)) {
+                    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+                        // App Header
+                        Text(
+                            text = "MusicPlayer",
+                            style = MaterialTheme.typography.headlineMedium.copy(color = Color.Black),
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                        )
+
+                        Spacer(modifier = Modifier.height(150.dp)) // Space between the header and the tabs
+
+                        // Tab layout
+                        TabRow(selectedTabIndex = selectedTabIndex, containerColor = Color(
+                            0xFFFFFFFF
+                        )
+                        ) {
                             Tab(
                                 selected = selectedTabIndex == 0,
                                 onClick = { selectedTabIndex = 0 },
-                                text = { Text("All Songs", color = Color.White) }
+                                text = { Text("All Songs", color = Color.Black) }
                             )
                             Tab(
                                 selected = selectedTabIndex == 1,
                                 onClick = { selectedTabIndex = 1 },
-                                text = { Text("Favorites", color = Color.White) }
+                                text = { Text("Favorites", color = Color.Black) }
+                            )
+                            Tab(
+                                selected = selectedTabIndex == 2,
+                                onClick = { selectedTabIndex = 2 },
+                                text = { Text("Playlists", color = Color.Black) }
+                            )
+                            Tab(
+                                selected = selectedTabIndex == 3,
+                                onClick = { selectedTabIndex = 3 },
+                                text = { Text("Recently Played", color = Color.Black) }
                             )
                         }
 
+                        Spacer(modifier = Modifier.height(16.dp)) // Additional gap between tabs and content
+
                         // Song List UI based on selected tab
-                        if (selectedTabIndex == 0) {
-                            SongListUI(
-                                MusicPlayerState.musicList,
-                                searchQuery,
-                                onSearchQueryChanged = { searchQuery = it },
-                                onPlayPauseClick = { songPath ->
-                                    playSong(songPath, isNewSong = true)
-                                    ShowBottomSheetState.showBottomSheet = true // Show the bottom sheet when a song is played
-                                },
-                                onRenameSong = { songName, songPath ->
-                                    songToRename = songName
-                                    newSongName = songName
-                                    showRenameDialog = true
-                                },
-                                onToggleFavorite = { songName -> toggleFavorite(songName) }
-                            )
-                        } else {
-                            SongListUI(
-                                MusicPlayerState.favoriteSongs.map { songName ->
-                                    MusicPlayerState.musicList.find { it.first == songName } ?: Pair(songName, "")
-                                },
-                                searchQuery,
-                                onSearchQueryChanged = { searchQuery = it },
-                                onPlayPauseClick = { songPath ->
-                                    playSong(songPath, isNewSong = true)
-                                    ShowBottomSheetState.showBottomSheet = true // Show the bottom sheet when a song is played
-                                },
-                                onRenameSong = { songName, songPath ->
-                                    songToRename = songName
-                                    newSongName = songName
-                                    showRenameDialog = true
-                                },
-                                onToggleFavorite = { songName -> toggleFavorite(songName) }
-                            )
+                        when (selectedTabIndex) {
+                            0 -> {
+                                SongListUI(
+                                    MusicPlayerState.musicList,
+                                    searchQuery,
+                                    onSearchQueryChanged = { searchQuery = it },
+                                    onPlayPauseClick = { songPath ->
+                                        playSong(songPath, isNewSong = true)
+                                        ShowBottomSheetState.showBottomSheet = true // Show the bottom sheet when a song is played
+                                    },
+                                    onRenameSong = { songName, songPath ->
+                                        songToRename = songName
+                                        newSongName = songName
+                                        showRenameDialog = true
+                                    },
+                                    onToggleFavorite = { songName -> toggleFavorite(songName) }
+                                )
+                            }
+                            1 -> {
+                                SongListUI(
+                                    MusicPlayerState.favoriteSongs.map { songName ->
+                                        MusicPlayerState.musicList.find { it.first == songName } ?: Pair(songName, "")
+                                    },
+                                    searchQuery,
+                                    onSearchQueryChanged = { searchQuery = it },
+                                    onPlayPauseClick = { songPath ->
+                                        playSong(songPath, isNewSong = true)
+                                        ShowBottomSheetState.showBottomSheet = true // Show the bottom sheet when a song is played
+                                    },
+                                    onRenameSong = { songName, songPath ->
+                                        songToRename = songName
+                                        newSongName = songName
+                                        showRenameDialog = true
+                                    },
+                                    onToggleFavorite = { songName -> toggleFavorite(songName) }
+                                )
+                            }
+                            2 -> {
+                                // Playlists Tab UI implementation (to be added)
+                            }
+                            3 -> {
+                                // Recently Played Tab UI implementation (to be added)
+                            }
                         }
 
                         // Bottom Sheet for Now Playing
@@ -104,7 +139,7 @@ class MainActivity : ComponentActivity() {
                                 songToRename,
                                 newSongName,
                                 onRename = { newName ->
-                                    renameSong(songToRename, newName,this@MainActivity)
+                                    renameSong(songToRename, newName, this@MainActivity)
                                     songToRename = newName
                                     showRenameDialog = false
                                 },
@@ -117,6 +152,8 @@ class MainActivity : ComponentActivity() {
         }
         checkAndRequestPermissions()
     }
+
+
 
     fun toggleFavorite(songTitle: String) {
         if (MusicPlayerState.favoriteSongs.contains(songTitle)) {
