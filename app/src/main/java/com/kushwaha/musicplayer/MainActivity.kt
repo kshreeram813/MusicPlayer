@@ -11,11 +11,23 @@ import android.provider.Settings
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -30,6 +42,11 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var sharedPreferences: SharedPreferences
     private val favoritesKey = "favorites"
+
+    object showSearchBoxState {
+        var showSearchBox by mutableStateOf(false)
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,8 +67,24 @@ class MainActivity : ComponentActivity() {
                             style = MaterialTheme.typography.headlineMedium.copy(color = Color.Black),
                             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
                         )
+                        // Floating Button for Search Box
+                        FloatingActionButton(
+                            onClick = { showSearchBoxState.showSearchBox = !showSearchBoxState.showSearchBox },
+                            modifier = Modifier
+                                .align(Alignment.End)
+                                .padding(16.dp)
+                            .offset(y = (10).dp), // Adjust the vertical offset if needed
+                        containerColor = Color(0xFF76C7C0)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = if (showSearchBoxState.showSearchBox) R.drawable.close else R.drawable.ic_search),
+                                contentDescription = if (showSearchBoxState.showSearchBox) "Close Search" else "Open Search",
+                                tint = Color.White,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
 
-                        Spacer(modifier = Modifier.height(150.dp)) // Space between the header and the tabs
+                        Spacer(modifier = Modifier.height(10.dp)) // Space between the header and the tabs
 
                         // Tab layout
                         TabRow(selectedTabIndex = selectedTabIndex, containerColor = Color(

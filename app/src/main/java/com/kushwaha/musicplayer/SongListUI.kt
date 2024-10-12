@@ -28,10 +28,8 @@ fun SongListUI(
     onRenameSong: (String, String) -> Unit,
     onToggleFavorite: (String) -> Unit
 ) {
-    var showSearchBox by remember { mutableStateOf(false) }
-
     // Filter music list based on search query
-    val filteredMusicList = if (showSearchBox && searchQuery.isNotEmpty()) {
+    val filteredMusicList = if (MainActivity.showSearchBoxState.showSearchBox && searchQuery.isNotEmpty()) {
         musicList.filter { it.first.contains(searchQuery, ignoreCase = true) }
     } else {
         musicList
@@ -49,12 +47,12 @@ fun SongListUI(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
             // Search Box
-            if (showSearchBox) {
+            if (MainActivity.showSearchBoxState.showSearchBox) {
                 SearchBox(
                     searchQuery = searchQuery,
                     onSearchQueryChanged = onSearchQueryChanged,
                     playingSongColor = playingSongColor,
-                    onClose = { showSearchBox = false }
+                    onClose = { MainActivity.showSearchBoxState.showSearchBox = false }
                 )
             }
 
@@ -74,22 +72,6 @@ fun SongListUI(
                     )
                 }
             }
-        }
-
-        // Floating Button for Search Box
-        FloatingActionButton(
-            onClick = { showSearchBox = !showSearchBox },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            containerColor = playingSongColor
-        ) {
-            Icon(
-                painter = painterResource(id = if (showSearchBox) R.drawable.close else R.drawable.ic_search),
-                contentDescription = if (showSearchBox) "Close Search" else "Open Search",
-                tint = Color.White,
-                modifier = Modifier.size(24.dp)
-            )
         }
     }
 }
