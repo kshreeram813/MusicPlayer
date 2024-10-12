@@ -66,12 +66,12 @@ class MainActivity : ComponentActivity() {
                             Tab(
                                 selected = selectedTabIndex == 1,
                                 onClick = { selectedTabIndex = 1 },
-                                text = { Text("Favorites", color = Color.Black) }
+                                text = { Text("My Favorites", color = Color.Black) }
                             )
                             Tab(
                                 selected = selectedTabIndex == 2,
                                 onClick = { selectedTabIndex = 2 },
-                                text = { Text("Playlists", color = Color.Black) }
+                                text = { Text("Folder List", color = Color.Black) }
                             )
                             Tab(
                                 selected = selectedTabIndex == 3,
