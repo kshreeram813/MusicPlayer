@@ -72,7 +72,7 @@ fun SongListUI(
 
             // Song List
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp), // Adjust spacing to be less
                 modifier = Modifier.fillMaxHeight()
             ) {
                 items(filteredMusicList) { song ->
@@ -105,6 +105,83 @@ fun SongListUI(
         }
     }
 }
+
+@Composable
+fun SongItem(
+    song: Pair<String, String>,
+    isPlaying: Boolean,
+    isFavorite: Boolean, // Accept the favorite state
+    onPlayPauseClick: (String) -> Unit,
+    onToggleFavorite: (String) -> Unit,
+    onRenameSong: (String, String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val playingSongColor = Color(0xFF76C7C0)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp) // Reduced height to show more songs
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (isPlaying) playingSongColor.copy(alpha = 0.3f) else Color.White)
+            .border(1.dp, if (isPlaying) playingSongColor else Color(0xFFE0E0E0), shape = RoundedCornerShape(12.dp))
+            .clickable { onPlayPauseClick(song.second) }
+            .padding(4.dp), // Reduced padding
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.img), // Placeholder image
+            contentDescription = "Album Art",
+            modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)) // Adjusted size
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = song.first,
+            style = MaterialTheme.typography.titleMedium.copy(
+                color = if (isPlaying) playingSongColor else Color(0xFF6A6A6A),
+                fontSize = MaterialTheme.typography.titleMedium.fontSize * 0.85f // Reduced font size
+            ),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            modifier = Modifier.weight(1f)
+        )
+
+        // Favorite button
+        IconButton(onClick = { onToggleFavorite(song.first) }) {
+            Image(
+                painter = painterResource(id = if (isFavorite) R.drawable.ic_favorite else R.drawable.ic_favorite_border),
+                contentDescription = "Toggle Favorite",
+                modifier = Modifier.size(20.dp) // Adjusted size
+            )
+        }
+
+        IconButton(onClick = { expanded = true }) {
+            Icon(painter = painterResource(id = R.drawable.ic_threedot), contentDescription = "Options")
+        }
+
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false },
+            offset = DpOffset(x = (200).dp, y = 0.dp) // Adjust the offset to match the desired position
+        ) {
+            DropdownMenuItem(
+                text = {
+                    Text(if (isFavorite) "Remove from Favorites" else "Add to Favorites")
+                },
+                onClick = {
+                    onToggleFavorite(song.first)
+                    expanded = false
+                }
+            )
+
+            DropdownMenuItem(text = { Text("Rename") }, onClick = {
+                onRenameSong(song.first, song.second) // Provide song title and path
+                expanded = false
+            })
+        }
+    }
+}
+
 
 @Composable
 fun SearchBox(
@@ -157,80 +234,5 @@ fun SearchBox(
                 .size(24.dp)
                 .clickable { onClose() }
         )
-    }
-}
-
-@Composable
-fun SongItem(
-    song: Pair<String, String>,
-    isPlaying: Boolean,
-    isFavorite: Boolean, // Accept the favorite state
-    onPlayPauseClick: (String) -> Unit,
-    onToggleFavorite: (String) -> Unit,
-    onRenameSong: (String, String) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-    val playingSongColor = Color(0xFF76C7C0)
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(70.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(if (isPlaying) playingSongColor.copy(alpha = 0.3f) else Color.White)
-            .border(1.dp, if (isPlaying) playingSongColor else Color(0xFFE0E0E0), shape = RoundedCornerShape(12.dp))
-            .clickable { onPlayPauseClick(song.second) }
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.img), // Placeholder image
-            contentDescription = "Album Art",
-            modifier = Modifier.size(56.dp).clip(RoundedCornerShape(12.dp))
-        )
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Text(
-            text = song.first,
-            style = MaterialTheme.typography.titleMedium.copy(
-                color = if (isPlaying) playingSongColor else Color(0xFF6A6A6A)
-            ),
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            modifier = Modifier.weight(1f)
-        )
-
-        // Favorite button
-        IconButton(onClick = { onToggleFavorite(song.first) }) {
-            Image(
-                painter = painterResource(id = if (isFavorite) R.drawable.ic_favorite else R.drawable.ic_favorite_border),
-                contentDescription = "Toggle Favorite",
-                modifier = Modifier.size(24.dp)
-            )
-        }
-
-        IconButton(onClick = { expanded = true }) {
-            Icon(painter = painterResource(id = R.drawable.ic_threedot), contentDescription = "Options")
-        }
-
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false },
-            offset = DpOffset(x = (200).dp, y = 0.dp) // Adjust the offset to match the desired position
-        ) {
-            DropdownMenuItem(
-                text = {
-                    Text(if (isFavorite) "Remove from Favorites" else "Add to Favorites")
-                },
-                onClick = {
-                    onToggleFavorite(song.first)
-                    expanded = false
-                }
-            )
-
-            DropdownMenuItem(text = { Text("Rename") }, onClick = {
-                onRenameSong(song.first, song.second) // Provide song title and path
-                expanded = false
-            })
-        }
     }
 }
