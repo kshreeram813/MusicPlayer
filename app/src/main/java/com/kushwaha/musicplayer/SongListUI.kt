@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
@@ -87,6 +88,7 @@ fun SongItem(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val playingSongColor = Color(0xFF76C7C0)
+    val context = LocalContext.current // Get the context here
 
     Row(
         modifier = Modifier
@@ -148,6 +150,15 @@ fun SongItem(
                 onRenameSong(song.first, song.second) // Provide song title and path
                 expanded = false
             })
+
+            // Set as ringtone option
+            DropdownMenuItem(
+                text = { Text("Set as Ringtone") },
+                onClick = {
+                    setAsRingtone(context,song.second) // Pass context and song path
+                    expanded = false
+                }
+            )
         }
     }
 }

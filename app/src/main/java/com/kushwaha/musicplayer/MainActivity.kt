@@ -246,4 +246,12 @@ class MainActivity : ComponentActivity() {
         MediaPlayerState.mediaPlayer?.release()
         MediaPlayerState.job?.cancel() // Cancel the progress update coroutine
     }
+    // Implement the handlers for sleep mode and audio effects
+    private fun handleSleepMode() {
+        // Logic to handle sleep mode
+    }
+
+    private fun handleAudioEffects() {
+        // Logic to handle audio effects
+    }
 }
