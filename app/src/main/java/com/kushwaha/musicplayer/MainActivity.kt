@@ -43,6 +43,11 @@ class MainActivity : ComponentActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private val favoritesKey = "favorites"
 
+    // New variables for folder management
+    private var folderName by mutableStateOf("")
+    private var showCreateFolderDialog by mutableStateOf(false)
+    private val foldersKey = "folders" // Key for storing folders
+
     object showSearchBoxState {
         var showSearchBox by mutableStateOf(false)
 
@@ -53,6 +58,8 @@ class MainActivity : ComponentActivity() {
         window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
         sharedPreferences = getSharedPreferences("MusicPlayerPrefs", MODE_PRIVATE)
         loadFavorites()
+        loadFolders() // Load folders from SharedPreferences
+
 
         setContent {
             MusicPlayerTheme {
@@ -171,13 +178,64 @@ class MainActivity : ComponentActivity() {
                                     onToggleFavorite = { songName -> toggleFavorite(songName) }
                                 )
                             }
+
                             2 -> {
-                                // Playlists Tab UI implementation (to be added)
+                                // Playlists Tab UI implementation
+                                Box(modifier = Modifier.fillMaxSize()) { // Use Box to layer the FAB over the content
+                                    Column {
+                                        // LazyColumn for displaying folder names
+                                        LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                            items(MusicPlayerState.folders) { folder ->
+                                                Text(
+                                                    text = folder,
+                                                    modifier = Modifier
+                                                        .padding(8.dp)
+                                                        .fillMaxWidth()
+                                                        .clickable { /* Handle folder click */ }
+                                                        .border(
+                                                            1.dp,
+                                                            Color.Gray,
+                                                            RoundedCornerShape(8.dp)
+                                                        )
+                                                        .padding(8.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                    // Floating Action Button for creating a folder
+                                    FloatingActionButton(
+                                        onClick = { showCreateFolderDialog = true },
+                                        modifier = Modifier
+                                            .padding(end = 8.dp) // Add a little space between the buttons
+                                            .size(85.dp)
+                                            .align(Alignment.BottomEnd) // Aligns the FAB to the bottom end (right corner)
+                                        .padding(bottom = 25.dp, end = 16.dp), // Adjusted padding to move it up
+                                    containerColor = Color(0xFF76C7C0)
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_createfolder),
+                                            contentDescription = "Create Folder",
+                                            tint = Color.White
+                                        )
+                                    }
+                                }
                             }
+
                             3 -> {
                                 // Recently Played Tab UI implementation (to be added)
                             }
                         }
+
+                        // Create Folder Dialog
+                        if (showCreateFolderDialog) {
+                            CreateFolderDialog(
+                                onDismiss = { showCreateFolderDialog = false },
+                                onCreate = { folderName ->
+                                    createFolder(folderName)
+                                }
+                            )
+                        }
+
 
                         // Bottom Sheet for Now Playing
                         if (ShowBottomSheetState.showBottomSheet) {
@@ -202,6 +260,26 @@ class MainActivity : ComponentActivity() {
             }
         }
         checkAndRequestPermissions()
+    }
+
+    private fun createFolder(folderName: String) {
+        if (folderName.isNotEmpty()) {
+            MusicPlayerState.folders.add(folderName) // Add new folder
+            saveFolders() // Save updated folders to SharedPreferences
+            showCreateFolderDialog = false // Dismiss dialog
+        }
+    }
+
+    private fun saveFolders() {
+        val editor = sharedPreferences.edit()
+        editor.putStringSet(foldersKey, MusicPlayerState.folders.toSet())
+        editor.apply()
+    }
+
+    private fun loadFolders() {
+        val foldersSet = sharedPreferences.getStringSet(foldersKey, setOf())
+        MusicPlayerState.folders.clear()
+        MusicPlayerState.folders.addAll(foldersSet ?: setOf())
     }
 
     fun toggleFavorite(songTitle: String) {
