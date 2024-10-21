@@ -11,8 +11,6 @@ import android.provider.Settings
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,11 +21,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -178,27 +173,30 @@ class MainActivity : ComponentActivity() {
                                     onToggleFavorite = { songName -> toggleFavorite(songName) }
                                 )
                             }
-
                             2 -> {
-                                // Playlists Tab UI implementation
-                                Box(modifier = Modifier.fillMaxSize()) { // Use Box to layer the FAB over the content
+                                Box(modifier = Modifier.fillMaxSize()) {
                                     Column {
                                         // LazyColumn for displaying folder names
                                         LazyColumn(modifier = Modifier.fillMaxSize()) {
                                             items(MusicPlayerState.folders) { folder ->
-                                                Text(
-                                                    text = folder,
+                                                Row(
                                                     modifier = Modifier
                                                         .padding(8.dp)
                                                         .fillMaxWidth()
-                                                        .clickable { /* Handle folder click */ }
-                                                        .border(
-                                                            1.dp,
-                                                            Color.Gray,
-                                                            RoundedCornerShape(8.dp)
+                                                        .clickable {
+                                                            // Handle folder click
+                                                        }
+                                                        .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+                                                        .padding(8.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(text = folder, modifier = Modifier.weight(1f))
+                                                    IconButton(onClick = { removeFolder(folder) }) {
+                                                        Icon(painter = painterResource(id = R.drawable.ic_delete_file), contentDescription = "Delete Folder",
+                                                            tint = Color.Black // Change this to a desired color for visibility
                                                         )
-                                                        .padding(8.dp)
-                                                )
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -206,11 +204,11 @@ class MainActivity : ComponentActivity() {
                                     FloatingActionButton(
                                         onClick = { showCreateFolderDialog = true },
                                         modifier = Modifier
-                                            .padding(end = 8.dp) // Add a little space between the buttons
+                                            .padding(end = 8.dp)
                                             .size(85.dp)
-                                            .align(Alignment.BottomEnd) // Aligns the FAB to the bottom end (right corner)
-                                        .padding(bottom = 25.dp, end = 16.dp), // Adjusted padding to move it up
-                                    containerColor = Color(0xFF76C7C0)
+                                            .align(Alignment.BottomEnd)
+                                            .padding(bottom = 25.dp, end = 16.dp),
+                                        containerColor = Color(0xFF76C7C0)
                                     ) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_createfolder),
@@ -280,6 +278,10 @@ class MainActivity : ComponentActivity() {
         val foldersSet = sharedPreferences.getStringSet(foldersKey, setOf())
         MusicPlayerState.folders.clear()
         MusicPlayerState.folders.addAll(foldersSet ?: setOf())
+    }
+    fun removeFolder(folderName: String) {
+        MusicPlayerState.folders.remove(folderName)
+        saveFolders()
     }
 
     fun toggleFavorite(songTitle: String) {
