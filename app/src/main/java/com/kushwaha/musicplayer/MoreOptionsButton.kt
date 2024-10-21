@@ -28,7 +28,7 @@ fun MoreOptionsButton(
         IconButton(
             onClick = { expanded = true },
             modifier = Modifier
-                .padding(end = 56.dp) // Space from the right to fit next to the search button
+                .padding(end = 12.dp) // Space from the right to fit next to the search button
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_threedot), // Replace with your three-dot icon resource

@@ -67,20 +67,22 @@ class MainActivity : ComponentActivity() {
                             style = MaterialTheme.typography.headlineMedium.copy(color = Color.Black),
                             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
                         )
-                        // Floating Button for Search Box
+
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 16.dp),
                             horizontalArrangement = Arrangement.End // Aligns elements to the end (right side)
                         ) {
-                            // Add the Search button (already present in your UI)
+                            // Floating Action Button for Search Box
                             FloatingActionButton(
-                                onClick = { showSearchBoxState.showSearchBox = !showSearchBoxState.showSearchBox },
+                                onClick = {
+                                    showSearchBoxState.showSearchBox =
+                                        !showSearchBoxState.showSearchBox
+                                },
                                 modifier = Modifier
-                                    .padding(end = 16.dp)
-                                    .size(56.dp)
-                                    .offset(y = (10).dp), // Adjust the vertical offset if needed
+                                    .padding(end = 8.dp) // Add a little space between the buttons
+                                    .size(56.dp), // Button size
                                 containerColor = Color(0xFF76C7C0)
                             ) {
                                 Icon(
@@ -90,12 +92,13 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier.size(24.dp)
                                 )
                             }
-                            // Add the MoreOptionsButton next to the search button
+                            // More Options Button (Three-dot button)
                             MoreOptionsButton(
                                 onSleepModeSelected = { handleSleepMode() },
                                 onAudioEffectSelected = { handleAudioEffects() },
                                 modifier = Modifier
-                                    .padding(end = 16.dp)
+                                    .size(56.dp)
+                                    .padding(top = 4.dp) // Adjust this value to move the button down slightly
                             )
                         }
 
