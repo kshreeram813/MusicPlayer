@@ -23,7 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.kushwaha.musicplayer.ui.theme.MusicPlayerTheme
@@ -180,20 +182,34 @@ class MainActivity : ComponentActivity() {
                                         LazyColumn(modifier = Modifier.fillMaxSize()) {
                                             items(MusicPlayerState.folders) { folder ->
                                                 Row(
-                                                    modifier = Modifier
-                                                        .padding(8.dp)
-                                                        .fillMaxWidth()
+                                                    modifier = Modifier.padding(8.dp).fillMaxWidth()
                                                         .clickable {
-                                                            // Handle folder click
+                                                            // Handle folder click (e.g., open folder contents)
                                                         }
-                                                        .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-                                                        .padding(8.dp),
+                                                        .border(1.dp, Color.Gray, RoundedCornerShape(12.dp)) // Adjust shape for better aesthetics
+                                                        .padding(12.dp), // Increased padding for better touch target
                                                     verticalAlignment = Alignment.CenterVertically
                                                 ) {
-                                                    Text(text = folder, modifier = Modifier.weight(1f))
+                                                    // Icon for folder
+                                                    Icon(
+                                                        painter = painterResource(id = R.drawable.ic_folder), // Use a folder icon
+                                                        contentDescription = "Folder Icon",
+                                                        tint = Color.Black,
+                                                        modifier = Modifier
+                                                            .size(40.dp) // Set the size to a medium value (adjust as needed)
+                                                            .padding(end = 8.dp) // Maintain padding
+                                                    )
+                                                    // Updated Text for folder name
+                                                    Text(text = folder,
+//                                                        modifier = Modifier.weight(1f,),
+                                                        modifier = Modifier.weight(1f)
+                                                            .padding(start = 10.dp), // Added padding for distance of folder name
+                                                        color = Color.Black,
+                                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 20.sp) // Adjust font size as needed
+                                                    )
                                                     IconButton(onClick = { removeFolder(folder) }) {
                                                         Icon(painter = painterResource(id = R.drawable.ic_delete_file), contentDescription = "Delete Folder",
-                                                            tint = Color.Black // Change this to a desired color for visibility
+                                                            tint = Color(0xFFFF8A8A) // Softer red color
                                                         )
                                                     }
                                                 }
