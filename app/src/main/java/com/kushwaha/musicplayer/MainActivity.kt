@@ -68,19 +68,34 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
                         )
                         // Floating Button for Search Box
-                        FloatingActionButton(
-                            onClick = { showSearchBoxState.showSearchBox = !showSearchBoxState.showSearchBox },
+                        Row(
                             modifier = Modifier
-                                .align(Alignment.End)
-                                .padding(16.dp)
-                            .offset(y = (10).dp), // Adjust the vertical offset if needed
-                        containerColor = Color(0xFF76C7C0)
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            horizontalArrangement = Arrangement.End // Aligns elements to the end (right side)
                         ) {
-                            Icon(
-                                painter = painterResource(id = if (showSearchBoxState.showSearchBox) R.drawable.close else R.drawable.ic_search),
-                                contentDescription = if (showSearchBoxState.showSearchBox) "Close Search" else "Open Search",
-                                tint = Color.White,
-                                modifier = Modifier.size(24.dp)
+                            // Add the Search button (already present in your UI)
+                            FloatingActionButton(
+                                onClick = { showSearchBoxState.showSearchBox = !showSearchBoxState.showSearchBox },
+                                modifier = Modifier
+                                    .padding(end = 16.dp)
+                                    .size(56.dp)
+                                    .offset(y = (10).dp), // Adjust the vertical offset if needed
+                                containerColor = Color(0xFF76C7C0)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = if (showSearchBoxState.showSearchBox) R.drawable.close else R.drawable.ic_search),
+                                    contentDescription = if (showSearchBoxState.showSearchBox) "Close Search" else "Open Search",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                            // Add the MoreOptionsButton next to the search button
+                            MoreOptionsButton(
+                                onSleepModeSelected = { handleSleepMode() },
+                                onAudioEffectSelected = { handleAudioEffects() },
+                                modifier = Modifier
+                                    .padding(end = 16.dp)
                             )
                         }
 
